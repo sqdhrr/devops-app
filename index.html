@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker - DevOps Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Task Tracker</h1>
+            <p class="subtitle">A Simple DevOps-Ready Task Management App</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Total Tasks:</span>
+                <span class="stat-value">{{ task_count }}</span>
+            </div>
+            {% if tasks %}
+            <div class="stat-item">
+                <span class="stat-label">Completed:</span>
+                <span class="stat-value">{{ tasks|selectattr('completed', 'equalto', True)|list|length }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="add-task-section">
+            <h2>Add a New Task</h2>
+            <form method="POST" action="{{ url_for('add_task') }}" class="add-task-form">
+                <div class="form-group">
+                    <input 
+                        type="text" 
+                        name="task_title" 
+                        placeholder="Enter your task here..." 
+                        required
+                        autocomplete="off"
+                        class="task-input"
+                    >
+                    <button type="submit" class="btn btn-primary">Add Task</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tasks-section">
+            <h2>Your Tasks</h2>
+            {% if tasks %}
+                <ul class="task-list">
+                    {% for task in tasks %}
+                    <li class="task-item {% if task.completed %}completed{% endif %}">
+                        <div class="task-content">
+                            <span class="task-title">{{ task.title }}</span>
+                            <span class="task-date">Created: {{ task.created_at }}</span>
+                        </div>
+                        <div class="task-actions">
+                            <form method="POST" action="{{ url_for('complete_task', task_id=task.id) }}" class="inline-form">
+                                <button type="submit" class="btn btn-toggle">
+                                    {% if task.completed %}✓ Done{% else %}⭕ Pending{% endif %}
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('delete_task', task_id=task.id) }}" class="inline-form">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <p>📭 No tasks yet. Add one to get started!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <footer>
+            <p>Task Tracker v1.0.0 | <a href="/health">Health Check</a> | <a href="/tasks">API</a></p>
+        </footer>
+    </div>
+</body>
+</html>
